@@ -5,7 +5,6 @@ import Button from 'react-bootstrap/Button';
 import Row from 'react-bootstrap/Row';
 import Col from 'react-bootstrap/Col';
 import Container from 'react-bootstrap/Container';
-const editJsonFile = require('edit-json-file');
 
 class UploadData extends Component {
   constructor(props) {
@@ -20,13 +19,14 @@ class UploadData extends Component {
       category: '',
       subCategory: '',
       videoNameVal: '',
+      file: '',
     };
-    //this.handleChange = this.handleChange.bind(this);
-    //this.uploadAssetData = this.uploadAssetData.bind(this);
   }
 
   handleChangeValue = (event) => {
     const value = event.target.value;
+    const fileValue = event.target.files[0];
+    console.log(fileValue);
     this.setState({
       ...this.state,
       [event.target.name]: value,
@@ -44,34 +44,29 @@ class UploadData extends Component {
   }; */
 
   uploadAssetData = (e) => {
+    console.log(this.state);
     var randomstring = require('randomstring');
     var createFileName =
-      'javascript/uploader' + randomstring.generate(7) + '.json';
-    Storage.put(
-      `${createFileName}`,
-      `
-    {
-        "shortDescription": "bahubali short",
-        "longDescription": "bahubali long",
-        "category": "Learning Video",
-        "subCategory": "LDP Video",
-        "videoNameVal": "C:\\fakepath\\testvideo12.mp4"
-    }
-  `
-    )
-      .then((result) => {
-        console.log('result: ', result);
-      })
-      .catch((err) => console.log('error: ', err));
+      'jsonuploader/uploader' + randomstring.generate(7) + '.json';
     let shortDescription = this.state.shortDescription;
     let longDescription = this.state.longDescription;
     let category = this.state.category;
     let subCategory = this.state.subCategory;
     let videoNameVal = this.state.videoNameVal;
-    //console.log(`${__dirname}`);
-    let file = editJsonFile(`${__dirname}jsonuploader.json`);
+    let jsonData = JSON.stringify({
+      shortDescription: shortDescription,
+      longDescription: longDescription,
+      category: category,
+      subCategory: subCategory,
+      videoNameVal: videoNameVal,
+    });
+
+    Storage.put(`${createFileName}`, `${jsonData}`)
+      .then((result) => {
+        console.log('result: ', result);
+      })
+      .catch((err) => console.log('error: ', err));
     //let file = editJsonFile(`jsonuploader.json`);
-    console.log(file);
     // console.log(file.toObject());
     //file.set('shortDescription', 'Earth');
     /*  console.log(
@@ -96,11 +91,9 @@ class UploadData extends Component {
         pass: this.state.shortDescription,
       })
     ); */
-    /* Storage.put(
-      `uservideo/${this.upload.files[0].name}`,
-      this.upload.files[0],
-      { contentType: this.upload.files[0].type }
-    )
+    Storage.put(`videouploader/${this.state.file.name}`, this.state.file.size, {
+      contentType: this.state.file.type,
+    })
       .then((result) => {
         this.upload = null;
         this.setState({ isLoading: false });
@@ -108,7 +101,7 @@ class UploadData extends Component {
       })
       .catch((err) => {
         this.setState({ response: `Cannot uploading file: ${err}` });
-      }); */
+      });
   }; //handleChange = () => {};
   render() {
     return (
@@ -181,20 +174,11 @@ class UploadData extends Component {
               <Form.Label column sm={2}>
                 <h6>Video</h6>
               </Form.Label>
-              <Col sm={6}>
+              <Col sm={4}>
                 <Form.File
-                  id='exampleFormControlFile1'
                   type='file'
-                  name='videoNameVal'
                   accept='video/*'
-                  ref={(ref) => (this.upload = ref)}
                   onChange={this.handleChangeValue}
-                  /* onChange={(e) =>
-                    this.setState({
-                      videoFile: this.upload.files[0],
-                      videoName: this.upload.files[0].name,
-                    })
-                  } */
                 />
               </Col>
             </Form.Group>
