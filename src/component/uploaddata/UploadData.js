@@ -1,11 +1,21 @@
 import React, { Component } from 'react';
 import { Storage } from 'aws-amplify';
-import Form from 'react-bootstrap/Form';
+/* import Form from 'react-bootstrap/Form';
 import Button from 'react-bootstrap/Button';
 import Row from 'react-bootstrap/Row';
 import Col from 'react-bootstrap/Col';
 import Container from 'react-bootstrap/Container';
 import Spinner from 'react-bootstrap/Spinner';
+import ProgressBar from 'react-bootstrap/ProgressBar'; */
+import {
+  ProgressBar,
+  Button,
+  Row,
+  Col,
+  Container,
+  Spinner,
+  Form,
+} from 'react-bootstrap';
 
 class UploadData extends Component {
   constructor(props) {
@@ -21,7 +31,7 @@ class UploadData extends Component {
       category: '',
       subCategory: '',
       videoNameVal: '',
-      progress: 0,
+      uploadProgress: 0,
       uploading: false,
     };
   }
@@ -46,13 +56,12 @@ class UploadData extends Component {
     let videoStr = this.state.videoName;
     videoStr = videoStr.split('.')[0];
     this.setState({ uploading: true });
-    var randomstring = require('randomstring');
     var createFileName = 'jsonuploader/jsonFile-' + videoStr + '.json';
     let shortDescription = this.state.shortDescription;
     let longDescription = this.state.longDescription;
     let category = this.state.category;
     let subCategory = this.state.subCategory;
-    let videoNameVal = this.state.videoNameVal;
+    //let videoNameVal = this.state.videoNameVal;
     let videoName = this.state.videoName;
     let videoFile = this.state.videoFile;
     let videoType = this.state.videoType;
@@ -91,6 +100,7 @@ class UploadData extends Component {
     console.log(videoFile);
   };
   render() {
+    //const { uploadProgress } = this.state;
     return (
       <Container>
         <Form>
@@ -166,8 +176,32 @@ class UploadData extends Component {
               />
             </Col>
           </Form.Group>
+          {/*  {this.state.uploadProgress > 0 && (
+            <ProgressBar
+              now={this.state.uploadProgress}
+              active='true'
+              label={`${this.state.uploadProgress}`}
+              style={{ width: this.state.uploadProgress + '%' }}
+            />
+          )} */}
+          <div className='progress'>
+            <div
+              className='progress-bar'
+              role='progressbar'
+              style={{ width: this.state.uploadProgress }}
+              aria-valuenow={this.state.uploadProgress}
+              aria-valuemin='0'
+              aria-valuemax='100'
+            >
+              {this.state.uploadProgress}
+            </div>
+          </div>
           <Form.Group as={Row}>
-            {!this.state.uploading && (
+            <Col sm={{ span: 5, offset: 2 }}>
+              <Button onClick={this.uploadAssetData}>Submit</Button>
+            </Col>
+
+            {/*  {!this.state.uploading && (
               <Col sm={{ span: 5, offset: 2 }}>
                 <Button onClick={this.uploadAssetData}>Submit</Button>
               </Col>
@@ -185,9 +219,24 @@ class UploadData extends Component {
                   Uploading Please Wait...
                 </Button>
               </Col>
-            )}
+            )} */}
           </Form.Group>
         </Form>
+
+        {/* {uploadProgress && (
+          <div className='progress'>
+            <div
+              className='progress-bar progress-bar-info progress-bar-striped'
+              role='progressbar'
+              aria-valuenow={uploadProgress}
+              aria-valuemin='0'
+              aria-valuemax='100'
+              style={{ width: uploadProgress + '%' }}
+            >
+              {uploadProgress}
+            </div>
+          </div>
+        )} */}
       </Container>
     );
   }
