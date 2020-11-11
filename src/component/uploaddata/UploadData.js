@@ -43,10 +43,11 @@ class UploadData extends Component {
     });
   };
   uploadAssetData = (e) => {
+    let videoStr = this.state.videoName;
+    videoStr = videoStr.split('.')[0];
     this.setState({ uploading: true });
     var randomstring = require('randomstring');
-    var createFileName =
-      'jsonuploader/jsonFile' + randomstring.generate(7) + '.json';
+    var createFileName = 'jsonuploader/jsonFile-' + videoStr + '.json';
     let shortDescription = this.state.shortDescription;
     let longDescription = this.state.longDescription;
     let category = this.state.category;
@@ -70,7 +71,13 @@ class UploadData extends Component {
       .catch((err) => console.log('error: ', err));
 
     //Video Upload
+    const foo = this;
     Storage.put(`videouploader/${videoName}`, videoFile, {
+      progressCallback(progress) {
+        let prog = parseInt((progress.loaded / progress.total) * 100);
+        console.log(prog + '%');
+        foo.setState({ uploadProgress: prog + '%' });
+      },
       contentType: videoType,
     })
       .then((result) => {
