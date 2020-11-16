@@ -69,3 +69,18 @@ html,
 .custom-control-label {
   font-weight: 400;
 }
+
+.tosterPos {
+  left: 50%;
+  position: fixed;
+  transform: translate(-50%, 0px);
+  z-index: 9999;
+  top: 274px;
+  background-color: #007aff;
+}
+
+.toast-body {
+  color: whitesmoke;
+  font-size: 16px;
+  font-weight: 600;
+}

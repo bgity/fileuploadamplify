@@ -1,8 +1,11 @@
 import React, { Component } from 'react';
 import { Storage } from 'aws-amplify';
 import { Button, Col, Form } from 'react-bootstrap';
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 class DataForm extends Component {
+  //timmer = () => {};
   constructor(props) {
     super(props);
     this.state = {
@@ -19,6 +22,7 @@ class DataForm extends Component {
       uploadProgress: 0,
       uploading: false,
       validated: false,
+      toster: false,
       //error
       shortDescriptionError: false,
       longDescriptionError: false,
@@ -85,7 +89,6 @@ class DataForm extends Component {
   };
   handleVideoChangeValue = (event) => {
     const fileValue = event.target.files[0];
-
     if (fileValue === '' || fileValue === null) {
       this.setState({
         videoNameError: true,
@@ -98,7 +101,6 @@ class DataForm extends Component {
         videoType: fileValue.type,
       });
     }
-
     /*  this.setState({
       videoFile: fileValue,
       videoName: fileValue.name,
@@ -130,51 +132,61 @@ class DataForm extends Component {
     }
     if (videoName === '') {
       this.setState({ videoNameError: true });
-    }
-    if (
-      shortDescription === '' &&
-      subCategory === '' &&
-      longDescription === '' &&
-      category === ''
-    ) {
       return false;
     } else {
-      let videoNameStr = videoName.split('.')[0];
-      this.setState({ uploading: true });
-      var createFileName = 'jsonuploader/jsonFile-' + videoNameStr + '.json';
-      let jsonData = JSON.stringify({
-        shortDescription: shortDescription,
-        longDescription: longDescription,
-        category: category,
-        subCategory: subCategory,
-        videoName: videoName,
+      this.setState({
+        videoNameError: false,
       });
-      console.log(jsonData);
-      //Json upload
-      Storage.put(`${createFileName}`, `${jsonData}`)
-        .then((result) => {
-          console.log('result: ', result);
-        })
-        .catch((err) => console.log('error: ', err));
-      //Video Upload
-      const foo = this;
-      Storage.put(`videouploader/${videoName}`, videoFile, {
-        progressCallback(progress) {
-          let prog = parseInt((progress.loaded / progress.total) * 100);
-          console.log(prog + '%');
-          foo.setState({ uploadProgress: prog + '%' });
-        },
-        contentType: videoType,
-      })
-        .then((result) => {
-          this.setState({ uploading: false });
-          window.location.href = '/';
-          this.setState({ response: 'Success uploading file!' });
-        })
-        .catch((err) => {
-          this.setState({ response: `Cannot uploading file: ${err}` });
-        });
     }
+
+    let videoNameStr = videoName.split('.')[0];
+    var createFileName = 'jsonuploader/jsonFile-' + videoNameStr + '.json';
+    let jsonData = JSON.stringify({
+      shortDescription: shortDescription,
+      longDescription: longDescription,
+      category: category,
+      subCategory: subCategory,
+      videoName: videoName,
+    });
+
+    //Json upload
+    Storage.put(`${createFileName}`, `${jsonData}`)
+      .then((result) => {
+        console.log('result: ', result);
+      })
+      .catch((err) => console.log('error: ', err));
+    //Video Upload
+    const foo = this;
+    this.setState({ uploading: true });
+    Storage.put(`videouploader/${videoName}`, videoFile, {
+      progressCallback(progress) {
+        let prog = parseInt((progress.loaded / progress.total) * 100);
+        //console.log(prog + '%');
+        foo.setState({ uploadProgress: prog + '%' });
+      },
+      contentType: videoType,
+    })
+      .then((result) => {
+        this.setState({ uploading: false });
+        this.setState({
+          toster: true,
+        });
+        toast.success('File Uploaded Succesfully', {
+          position: 'top-right',
+          autoClose: 3000,
+        });
+        //document.getElementById('dataForm').reset();
+        setTimeout(() => {
+          window.location.reload();
+        }, 3000);
+      })
+      .catch((err) => {
+        toast.error(`Cannot uploading file: ${err}`, {
+          position: 'top-right',
+          autoClose: 4000,
+        });
+      });
+    //}
   };
   render() {
     return (
@@ -185,6 +197,7 @@ class DataForm extends Component {
             <Form
               validated={this.state.validated}
               onSubmit={this.uploadAssetData}
+              id='dataForm'
             >
               <Form.Row>
                 <Form.Group as={Col}>
@@ -283,6 +296,7 @@ class DataForm extends Component {
                   </div>
                 )}
                 <Form.File
+                  name='assetUpload'
                   type='file'
                   accept='video/*'
                   onChange={this.handleVideoChangeValue}
@@ -296,6 +310,20 @@ class DataForm extends Component {
                   ''
                 )}
               </Form.Group>
+              {this.state.toster && (
+                <ToastContainer
+                  position='top-right'
+                  autoClose={5000}
+                  hideProgressBar={false}
+                  newestOnTop={false}
+                  closeOnClick
+                  rtl={false}
+                  pauseOnFocusLoss
+                  draggable
+                  pauseOnHover
+                />
+              )}
+              {/*  {this.state.toster && <Toster />} */}
               <Button variant='primary' onClick={this.uploadAssetData}>
                 Submit
               </Button>
